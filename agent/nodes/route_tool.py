@@ -10,26 +10,15 @@ import config
 from agent.state import AgentState
 
 _SYSTEM_PROMPT = """\
-You are a tool routing assistant. Based on the user query and available tools,
-select THE SINGLE BEST tool to execute, and extract the required parameters.
-
-Respond ONLY with valid JSON in this exact format:
-{{
-  "selected_tool": "<tool_name or null>",
-  "confidence": <0.0 to 1.0>,
-  "parameters": {{}},
-  "reasoning": "<brief explanation>"
-}}
-
-Rules:
-- If NO tool is appropriate, set selected_tool to null and confidence to 0.
-- Extract parameter values directly from the user query when possible.
-- For missing required parameters, use reasonable defaults or leave empty strings.
-- Confidence should reflect how certain you are that this tool matches the intent."""
+You are a tool routing assistant.
+The user has a goal. You have a set of available tools.
+Select the SINGLE BEST tool to accomplish the user's intent.
+If no tool is appropriate, DO NOT call any tools. Just respond normally.
+"""
 
 
 def route_tool(state: AgentState) -> dict:
-    """Use LLM to select the best tool and extract parameters."""
+    """Use OpenAI Function Calling to select the best tool and extract parameters."""
     query = state["user_query"]
     reranked = state.get("reranked_tools", [])
 
@@ -40,60 +29,62 @@ def route_tool(state: AgentState) -> dict:
             "confidence": 0.0,
         }
 
-    # Build tool descriptions for the LLM
-    tool_descriptions = []
+    from tools.metadata import get_tool_metadata
+    
+    # Build OpenAI Tool schemas dynamically from registry metadata
+    tools_for_llm = []
     for t in reranked:
-        tool_descriptions.append(
-            f"- {t['name']} ({t['display_name']}): {t['description']}"
-        )
-    tools_text = "\n".join(tool_descriptions)
+        try:
+            meta = get_tool_metadata(t["name"])
+            tool_params = meta.parameters
+        except ValueError:
+            tool_params = t.get("parameters", {})
+            
+        tools_for_llm.append({
+            "type": "function",
+            "function": {
+                "name": t["name"],
+                "description": t["description"],
+                "parameters": {
+                    "type": "object",
+                    "properties": tool_params,
+                    "required": list(tool_params.keys()),
+                }
+            }
+        })
 
     llm = ChatOpenAI(
         model=config.LLM_MODEL,
         api_key=config.OPENAI_API_KEY,
         temperature=0,
-    )
+    ).bind_tools(tools_for_llm)
 
+    import datetime
+    
     messages = [
         {"role": "system", "content": _SYSTEM_PROMPT},
         {
             "role": "user",
             "content": (
-                f"User Query: {query}\n\n"
-                f"Available Tools:\n{tools_text}\n\n"
-                f"Select the best tool and extract parameters."
+                f"Current Date/Time: {datetime.datetime.now().isoformat()}\n\n"
+                f"User Query: {query}"
             ),
         },
     ]
 
     response = llm.invoke(messages)
-    content = response.content.strip()
-
-    # Parse JSON response
-    try:
-        # Handle markdown code blocks
-        if content.startswith("```"):
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-            content = content.strip()
-
-        result = json.loads(content)
-    except json.JSONDecodeError:
-        return {
-            "selected_tool": None,
-            "tool_params": {},
-            "confidence": 0.0,
-        }
-
-    selected = result.get("selected_tool")
-    confidence = float(result.get("confidence", 0))
-    params = result.get("parameters", {})
-
-    # Apply confidence threshold
-    if confidence < config.ROUTER_CONFIDENCE_THRESHOLD:
+    
+    # Check if the LLM called a tool
+    if getattr(response, "tool_calls", None) and len(response.tool_calls) > 0:
+        tool_call = response.tool_calls[0]
+        selected = tool_call["name"]
+        params = tool_call["args"]
+        # With OpenAI tool calling, if it chooses a tool, confidence is effectively 1.0
+        confidence = 1.0
+    else:
         selected = None
         params = {}
+        confidence = 0.0
 
     return {
         "selected_tool": selected,

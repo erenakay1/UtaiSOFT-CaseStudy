@@ -46,6 +46,7 @@ def search_tools(query_embedding: list[float], top_k: int | None = None) -> list
                 "display_name": meta.get("display_name", ""),
                 "description": meta.get("description", ""),
                 "category": meta.get("category", ""),
+                "examples": meta.get("examples", ""),
                 "score": match["score"],
             }
         )

@@ -83,10 +83,10 @@ def run_chat():
         try:
             result = graph.invoke({"user_query": user_input})
 
-            # Show pipeline details
             intent = result.get("analyzed_intent", "")
             selected = result.get("selected_tool", None)
             confidence = result.get("confidence", 0)
+            params = result.get("tool_params", {})
             candidates = result.get("candidate_tools", [])
             reranked = result.get("reranked_tools", [])
 
@@ -95,6 +95,7 @@ def run_chat():
                 f"[dim]  🔍 Candidates: {[c['name'] for c in candidates]}[/dim]\n"
                 f"[dim]  📈 Reranked: {[c['name'] for c in reranked]}[/dim]\n"
                 f"[dim]  🎯 Selected: {selected} (confidence: {confidence:.2f})[/dim]\n"
+                f"[dim]  ⚙️ Params:  {params}[/dim]\n"
             )
 
             response = result.get("final_response", "Yanıt oluşturulamadı.")

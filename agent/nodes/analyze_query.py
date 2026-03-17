@@ -9,7 +9,8 @@ from agent.state import AgentState
 
 _SYSTEM_PROMPT = """\
 You are a query analyzer. Given a user query, extract the core intent in a clear, 
-concise English sentence suitable for semantic search over tool descriptions.
+concise sentence suitable for semantic search over tool descriptions.
+CRITICAL: You MUST write the intent in the EXACT SAME LANGUAGE as the user's original query. Do not translate it.
 Focus on WHAT the user wants to accomplish, not HOW.
 Return ONLY the intent sentence, nothing else."""
 

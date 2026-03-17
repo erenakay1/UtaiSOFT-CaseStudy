@@ -18,6 +18,35 @@ class CodeExecutorInput(BaseModel):
     code: str = Field(..., description="Python code to execute")
 
 
+def _auto_print_last_expr(code: str) -> str:
+    """If the last non-empty line is a bare expression, wrap it with print().
+    
+    This gives REPL-like behavior so OpenAI-generated code that ends with
+    a variable name (e.g. `result`) still produces visible output.
+    """
+    lines = code.rstrip().split("\n")
+    if not lines:
+        return code
+    
+    last = lines[-1].strip()
+    # Skip if already has print, or is a statement keyword
+    statement_prefixes = (
+        "import ", "from ", "def ", "class ", "if ", "else:", "elif ",
+        "for ", "while ", "try:", "except", "finally:", "with ", "return ",
+        "raise ", "pass", "break", "continue", "print(", "print (",
+        "#", "assert ",
+    )
+    if last.startswith(statement_prefixes):
+        return code
+    # Skip assignments (=) but not comparisons (==, !=, <=, >=)
+    if "=" in last and "==" not in last and "!=" not in last and "<=" not in last and ">=" not in last:
+        return code
+    
+    # It's likely a bare expression — wrap with print()
+    lines[-1] = f"print({last})"
+    return "\n".join(lines)
+
+
 class CodeExecutorTool(DynamicTool):
     name: str = "code_executor"
     description: str = "Execute Python code and return the output."
@@ -63,6 +92,11 @@ class CodeExecutorTool(DynamicTool):
         }
 
         try:
+            # Auto-print last expression (REPL behavior)
+            # If the last line is a bare expression (not assignment/import/etc.),
+            # wrap it with print() so the result is always visible.
+            code = _auto_print_last_expr(code)
+            
             with redirect_stdout(stdout_capture), redirect_stderr(stderr_capture):
                 exec(code, safe_globals)
 

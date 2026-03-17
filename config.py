@@ -38,7 +38,7 @@ GOOGLE_SCOPES = [
 
 # ── Search Pipeline Thresholds ─────────────────────────────────────────
 RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-RERANKER_THRESHOLD = float(os.getenv("RERANKER_THRESHOLD", "0.3"))
+RERANKER_THRESHOLD = float(os.getenv("RERANKER_THRESHOLD", "0.0"))
 ROUTER_CONFIDENCE_THRESHOLD = float(os.getenv("ROUTER_CONFIDENCE_THRESHOLD", "0.7"))
 SEMANTIC_SEARCH_TOP_K = 5
 

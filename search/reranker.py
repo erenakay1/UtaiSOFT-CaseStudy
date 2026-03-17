@@ -33,13 +33,19 @@ def rerank_tools(
     threshold = threshold if threshold is not None else config.RERANKER_THRESHOLD
     model = _get_model()
 
-    pairs = [(query, c["description"]) for c in candidates]
+    pairs = [
+        (query, f"{c.get('description', '')} {c.get('examples', '')}")
+        for c in candidates
+    ]
     scores = model.predict(pairs)
 
+    import math
+    
     scored = []
     for candidate, score in zip(candidates, scores):
-        if float(score) >= threshold:
-            candidate["rerank_score"] = float(score)
+        prob = 1 / (1 + math.exp(-float(score)))
+        if prob >= threshold:
+            candidate["rerank_score"] = float(prob)
             scored.append(candidate)
 
     scored.sort(key=lambda c: c["rerank_score"], reverse=True)
