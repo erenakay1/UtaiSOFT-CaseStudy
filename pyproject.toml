@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+markers = [
+    "integration: mark a test as requiring live API keys and services",
+]
+testpaths = ["tests"]
