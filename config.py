@@ -42,5 +42,9 @@ RERANKER_THRESHOLD = float(os.getenv("RERANKER_THRESHOLD", "0.0"))
 ROUTER_CONFIDENCE_THRESHOLD = float(os.getenv("ROUTER_CONFIDENCE_THRESHOLD", "0.7"))
 SEMANTIC_SEARCH_TOP_K = 5
 
+# ── Retry / Error Recovery ─────────────────────────────────────────────
+TOOL_RETRY_MAX_ATTEMPTS = int(os.getenv("TOOL_RETRY_MAX_ATTEMPTS", "3"))
+TOOL_RETRY_BASE_DELAY = float(os.getenv("TOOL_RETRY_BASE_DELAY", "1.0"))  # seconds
+
 # ── SQLite ─────────────────────────────────────────────────────────────
 SQLITE_DB_PATH = DATA_DIR / "tools.db"

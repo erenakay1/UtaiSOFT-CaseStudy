@@ -84,3 +84,15 @@ Hiçbir agent kodu değişmez ✅
 - **LangChain** → Tool abstractions
 - **OpenAI** → Embeddings + LLM routing
 - **sentence-transformers** → Cross-encoder reranking
+
+## 🛡️ Hata Yönetimi & Dayanıklılık (Error Recovery)
+
+Sistem, dış servislerde (API, Network) oluşabilecek geçici hatalara karşı **Exponential Backoff** stratejisi ile otomatik retry mekanizmasına sahiptir:
+- **Max Attempt:** 3 (Configurable)
+- **Base Delay:** 1s (Üstel artış: 1s, 2s, 4s...)
+- **Seçici Retry:** `ValueError`, `TypeError` gibi girdi hatalarında vakit kaybetmemek için retry yapılmaz, sadece geçici servis hatalarında devreye girer.
+
+## 📈 İzlenebilirlik (Observability)
+
+Proje **LangSmith** ile tam entegre çalışır. Tüm agent akışı, tool seçim kararları ve gecikme (latency) süreleri görsel olarak izlenebilir.
+- Görselleştirme için `.env` dosyasında `LANGCHAIN_TRACING_V2=true` ayarlanması yeterlidir.

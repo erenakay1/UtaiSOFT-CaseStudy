@@ -1,4 +1,4 @@
-"""Translation tool — googletrans library."""
+"""Translation tool — deep-translator library."""
 
 from __future__ import annotations
 
@@ -23,17 +23,14 @@ class TranslateTool(DynamicTool):
 
     def _run(self, text: str, dest: str = "tr", src: str = "auto") -> str:
         try:
-            from googletrans import Translator
+            from deep_translator import GoogleTranslator
 
-            translator = Translator()
-            result = translator.translate(text, dest=dest, src=src)
+            translated = GoogleTranslator(source=src, target=dest).translate(text)
 
-            detected = result.src if src == "auto" else src
             return (
-                f"🌐 Çeviri ({detected} → {dest})\n"
+                f"🌐 Çeviri ({src} → {dest})\n"
                 f"   Kaynak: {text}\n"
-                f"   Çeviri: {result.text}"
+                f"   Çeviri: {translated}"
             )
         except Exception as e:
             return f"Çeviri başarısız: {e}"
-

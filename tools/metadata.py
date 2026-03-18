@@ -135,9 +135,12 @@ TOOL_METADATA_REGISTRY: dict[str, ToolMetadata] = {
         examples=[
             "Son e-postalarımı göster",
             "ali@example.com adresine bir e-posta gönder",
+            "ali@example.com adresine bir mail gönder",
             "Gelen kutum ne durumda?",
             "Send an email to test@test.com",
             "Read my recent emails",
+            "Mail at",                          
+            "E-posta yolla",                    
         ],
     ),
     "document_reader": ToolMetadata(
