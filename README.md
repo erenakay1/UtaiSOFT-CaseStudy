@@ -96,3 +96,23 @@ Sistem, dış servislerde (API, Network) oluşabilecek geçici hatalara karşı 
 
 Proje **LangSmith** ile tam entegre çalışır. Tüm agent akışı, tool seçim kararları ve gecikme (latency) süreleri görsel olarak izlenebilir.
 - Görselleştirme için `.env` dosyasında `LANGCHAIN_TRACING_V2=true` ayarlanması yeterlidir.
+
+## 📸 Örnek Çıktılar
+
+### Başarılı Senaryolar
+
+#### 11. Tool — IP Lookup (Yeni eklenen tool)
+![IP Lookup](docs/screenshots/ip_lookup.png)
+![IP Lookup Trace](docs/screenshots/ip_lookup_trace.png)
+
+#### Hava Durumu
+![Weather](docs/screenshots/weather.png)
+
+#### Döviz Çevirme
+![Currency](docs/screenshots/currency.png)
+
+#### Kod Çalıştırma
+![Code Executor](docs/screenshots/code_executor.png)
+
+### Başarısız Senaryo (Tool Bulunamadı)
+![No Tool](docs/screenshots/no_tool.png)
