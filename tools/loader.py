@@ -19,6 +19,7 @@ from tools.document_reader import DocumentReaderTool
 from tools.database import DatabaseTool
 from tools.code_executor import CodeExecutorTool
 from tools.timer import TimerTool
+from tools.ip_lookup import IPLookupTool
 
 # All tool classes — add new tools to this list to register them
 ALL_TOOL_CLASSES = [
@@ -32,6 +33,7 @@ ALL_TOOL_CLASSES = [
     DatabaseTool,
     CodeExecutorTool,
     TimerTool,
+    IPLookupTool,
 ]
 
 

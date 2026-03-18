@@ -230,6 +230,26 @@ TOOL_METADATA_REGISTRY: dict[str, ToolMetadata] = {
             "Timer'ı iptal et",
         ],
     ),
+    "ip_lookup": ToolMetadata(
+        name="ip_lookup",
+        display_name="IP Lookup",
+        description=(
+            "Look up geolocation, ISP, and network information for any IP address. "
+            "Returns country, city, region, ISP name, organization, coordinates, "
+            "and timezone. Can also detect the user's own public IP address."
+        ),
+        parameters={
+            "ip": {"type": "string", "description": "IP address to look up (empty for own IP)", "default": ""},
+        },
+        category="information",
+        examples=[
+            "IP adresimi sorgula",
+            "8.8.8.8 IP adresi kimin?",
+            "Bu IP nerede: 1.1.1.1",
+            "What is my IP address?",
+            "IP adresinin lokasyonunu bul",
+        ],
+    ),
 }
 
 def get_tool_metadata(tool_name: str) -> ToolMetadata:
