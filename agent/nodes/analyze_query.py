@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 from langchain_openai import ChatOpenAI
 
 import config
@@ -14,21 +15,22 @@ CRITICAL: You MUST write the intent in the EXACT SAME LANGUAGE as the user's ori
 Focus on WHAT the user wants to accomplish, not HOW.
 Return ONLY the intent sentence, nothing else."""
 
-
-def analyze_query(state: AgentState) -> dict:
-    """Analyze the user query and extract intent for semantic search."""
+@functools.lru_cache(maxsize=1024)
+def _get_intent_cached(query: str) -> str:
     llm = ChatOpenAI(
         model=config.LLM_MODEL,
         api_key=config.OPENAI_API_KEY,
         temperature=0,
     )
-
     messages = [
         {"role": "system", "content": _SYSTEM_PROMPT},
-        {"role": "user", "content": state["user_query"]},
+        {"role": "user", "content": query},
     ]
-
     response = llm.invoke(messages)
-    intent = response.content.strip()
+    return response.content.strip()
 
+
+def analyze_query(state: AgentState) -> dict:
+    """Analyze the user query and extract intent for semantic search."""
+    intent = _get_intent_cached(state["user_query"])
     return {"analyzed_intent": intent}
