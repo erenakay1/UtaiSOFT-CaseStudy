@@ -12,9 +12,9 @@ from tools.loader import load_all_tools
 class TestToolLoader:
     """Tests for tool loading and registration."""
 
-    def test_all_10_tools_loaded(self):
+    def test_all_11_tools_loaded(self):
         registry = load_all_tools()
-        assert registry.size == 10
+        assert registry.size == 11
 
     def test_all_tools_have_metadata(self):
         registry = load_all_tools()

@@ -65,13 +65,26 @@ caseStudy/
 class MyNewTool(DynamicTool):
     ...
 
-# 2. tools/loader.py → ALL_TOOL_CLASSES'a ekle
+# 2. tools/metadata.py → TOOL_METADATA_REGISTRY'ye ekle
+TOOL_METADATA_REGISTRY = {
+    ...
+    "my_new_tool": ToolMetadata(
+        name="my_new_tool",
+        display_name="New Tool",
+        description="...",
+        parameters={...},
+        category="utility",
+        examples=["..."]
+    )
+}
+
+# 3. tools/loader.py → ALL_TOOL_CLASSES'a ekle
 ALL_TOOL_CLASSES = [
     ...,
     MyNewTool,
 ]
 
-# 3. Pinecone'a indexle
+# 4. Pinecone'a indexle
 python main.py --index
 ```
 
@@ -91,6 +104,13 @@ Sistem, dış servislerde (API, Network) oluşabilecek geçici hatalara karşı 
 - **Max Attempt:** 3 (Configurable)
 - **Base Delay:** 1s (Üstel artış: 1s, 2s, 4s...)
 - **Seçici Retry:** `ValueError`, `TypeError` gibi girdi hatalarında vakit kaybetmemek için retry yapılmaz, sadece geçici servis hatalarında devreye girer.
+
+## ⚡ Performans ve Maliyet Optimizasyonu (Caching)
+
+Sisteme sıfır gecikme ve sıfır maliyet sağlamak adına uçtan uca In-Memory Caching entegre edilmiştir:
+- **Embedding Cache:** OpenAI API çağrıları `@functools.lru_cache` ile önbelleğe alınır.
+- **LLM Routing Cache:** `analyze_query` ve `route_tool` node'larındaki maliyetli GPT-4o-mini çağrıları, aynı soru (query) geldiğinde atlanarak **sıfır token harcaması** ve anlık yanıt süresi elde edilir (Prompt'a dinamik saat/tarih eklense bile, cache anahtarı olarak sadece kullanıcı sorgusu baz alınır).
+- *Not: Projeyi çalıştırmayı ve değerlendirmeyi kolaylaştırmak adına In-Memory Cache kullanılmıştır. Yatay ölçekleme (horizontal scaling) gerektiren Production ortamlarında bu katmanın dağıtık bir yapı olan **Redis** ile değiştirilmesi öngörülmüştür.*
 
 ## 📈 İzlenebilirlik (Observability)
 

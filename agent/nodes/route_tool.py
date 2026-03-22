@@ -17,6 +17,8 @@ If no tool is appropriate, DO NOT call any tools. Just respond normally.
 """
 
 
+_ROUTE_CACHE: dict[str, dict] = {}
+
 def route_tool(state: AgentState) -> dict:
     """Use OpenAI Function Calling to select the best tool and extract parameters."""
     query = state["user_query"]
@@ -28,6 +30,11 @@ def route_tool(state: AgentState) -> dict:
             "tool_params": {},
             "confidence": 0.0,
         }
+
+    # Exact-match caching for tool routing
+    global _ROUTE_CACHE
+    if query in _ROUTE_CACHE:
+        return _ROUTE_CACHE[query]
 
     from tools.metadata import get_tool_metadata
     
@@ -86,8 +93,10 @@ def route_tool(state: AgentState) -> dict:
         params = {}
         confidence = 0.0
 
-    return {
+    result = {
         "selected_tool": selected,
         "tool_params": params,
         "confidence": confidence,
     }
+    _ROUTE_CACHE[query] = result
+    return result

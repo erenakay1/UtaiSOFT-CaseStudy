@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 from openai import OpenAI
 
 import config
@@ -16,6 +17,7 @@ def _get_client() -> OpenAI:
     return _client
 
 
+@functools.lru_cache(maxsize=1024)
 def get_embedding(text: str) -> list[float]:
     """Return an embedding vector for *text* using the configured model."""
     client = _get_client()
