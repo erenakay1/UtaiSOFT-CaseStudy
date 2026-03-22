@@ -19,6 +19,7 @@
 | 8 | Veritabanı | SQLite |
 | 9 | Kod Çalıştırıcı | Python exec() |
 | 10 | Timer/Alarm | APScheduler |
+| 11 | IP Sorgulama | ip-api.com |
 
 ## 🚀 Kurulum
 
