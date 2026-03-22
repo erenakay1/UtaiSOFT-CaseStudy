@@ -65,14 +65,28 @@ caseStudy/
 class MyNewTool(DynamicTool):
     ...
 
-# 2. tools/loader.py → ALL_TOOL_CLASSES'a ekle
+# 2. tools/metadata.py → TOOL_METADATA_REGISTRY'ye ekle
+TOOL_METADATA_REGISTRY = {
+    ...
+    "my_new_tool": ToolMetadata(
+        name="my_new_tool",
+        display_name="New Tool",
+        description="...",
+        parameters={...},
+        category="utility",
+        examples=["..."]
+    )
+}
+
+# 3. tools/loader.py → ALL_TOOL_CLASSES'a ekle
 ALL_TOOL_CLASSES = [
     ...,
     MyNewTool,
 ]
 
-# 3. Pinecone'a indexle
+# 4. Pinecone'a indexle
 python main.py --index
+
 ```
 
 Hiçbir agent kodu değişmez ✅
